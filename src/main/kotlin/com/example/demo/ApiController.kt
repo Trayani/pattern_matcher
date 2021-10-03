@@ -39,9 +39,13 @@ object ApiController {
         if (input == null)
             ctx.setResponse(400, "No input provided. Expected Query parameter 'text'")
         else {
-            val matches = TextMatcherService.listMatchedStrings(input)
-            ctx.status(200)
-            ctx.json(MatchResultResponseDto("Matched ${matches.size} words", matches))
+            try {
+                val matches = TextMatcherService.listMatchedStrings(input)
+                ctx.status(200)
+                ctx.json(MatchResultResponseDto("Matched ${matches.size} words", matches))
+            } catch (th: Throwable) {
+                ctx.setResponse(500, th.localizedMessage)
+            }
         }
     }
 
