@@ -1,7 +1,7 @@
 # pattern matcher
 Kotlin application  that opens REST service for matching keywords.
 It exposes two endpoints:
-- **POST /generate** which will prepare the application's state for search of keywords meeting the pattern *'([abcdef]{3}\d){1,2}'*
+- **POST /generate** which will prepare the application's state for search of keywords meeting the pattern <br /> *'([abcdef]{3}\d){1,2}'*
 - **GET /search?text=...** where **text** is a required query parameter.
 
 To start, navigate to /jar folder and run: <br />
@@ -19,7 +19,7 @@ Then on other terminal, run:<br />
 
 
 
-You can also try this via swagger UI: open your web browser on /swagger-ui endpoint at given *PORT*, e.g. [http://localhost:7111/swagger-ui](http://localhost:7111/swagger-ui)
+You can also try this via swagger UI: open your web browser on /swagger-ui endpoint at given *PORT*, e.g. <br /> [http://localhost:7111/swagger-ui](http://localhost:7111/swagger-ui)
 
 <br />
 
