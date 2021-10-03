@@ -2,6 +2,8 @@
 group 'io.javalin'
 version '1.0-SNAPSHOT'
 
+
+
 buildscript {
     ext.kotlin_version = '1.4.32'
 
@@ -15,6 +17,7 @@ buildscript {
     }
 
 }
+
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
@@ -31,6 +34,16 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.9"
     implementation group: 'com.github.mifmif', name: 'generex', version: '1.0.2'
     implementation 'io.javalin:javalin-bundle:4.0.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
+
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
+    implementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.7.2'
+
+
+
+    implementation 'org.openjdk.jmh:jmh-core:1.21'
+    implementation 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
+
 }
 
 compileKotlin {
@@ -42,22 +55,15 @@ compileTestKotlin {
 
 
 jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//    manifest {
-//        attributes "Main-Class": "com.example.demo.JavalinStarter"
-//    }
+    duplicatesStrategy = DuplicatesStrategy.WARN
+    manifest {
+        attributes "Main-Class": "com.example.demo.JavalinStarter"
+    }
 
     from {
         configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
 }
 
-task fatJar2(type: Jar) {
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-    manifest {
-        attributes 'Implementation-Title': 'Gradle Quickstart', 'Implementation-Version': version
-        attributes 'Main-Class': 'com.example.demo.JavalinStarter'
-    }
-}
