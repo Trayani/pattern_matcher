@@ -1,34 +1,34 @@
 package com.example.demo.matching
 
 import com.example.demo.forEachMatch
+import com.example.demo.api.BadRequestException
 import com.mifmif.common.regex.Generex
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 object TextMatcherService {
 
+    val defaultInputPattern = "([abcdef]{3}\\d){1,2}"
     private val initialCharacters = mutableMapOf<Char, LinkedCharacter>()
 
     var initialized = false
         private set
 
-    val defaultInputPattern = "([abcdef]{3}\\d){1,2}"
 
     fun generate(pattern: String = defaultInputPattern): String {
         val input = pattern.replace("?:", "")
 
-        if (pattern.contains("?="))
-            throw RuntimeException("Positive lookahead ('?=') is not supported")
-        if (pattern.contains("?!"))
-            throw RuntimeException("Negative lookahead ('?!') is not supported")
-        if (pattern.contains("?<="))
-            throw RuntimeException("Positive lookbehind ('?!') is not supported")
-        if (pattern.contains("?<!"))
-            throw RuntimeException("Negative lookbehind ('?!') is not supported")
+        when {
+            pattern.contains("?=") -> throw BadRequestException("Positive lookahead ('?=') is not supported")
+            pattern.contains("?!") -> throw BadRequestException("Negative lookahead ('?!') is not supported")
+            pattern.contains("?<=") -> throw BadRequestException("Positive lookbehind ('?!') is not supported")
+            pattern.contains("?<!") -> throw BadRequestException("Negative lookbehind ('?!') is not supported")
+        }
+
 
         val generex = Generex(input)
         if (generex.isInfinite)
-            throw RuntimeException("Given regular expression '$input' yields infinite combinations")
+            throw BadRequestException("Given regular expression '$input' yields infinite combinations")
 
         synchronized(this) {
             generateInternal(generex)
@@ -37,7 +37,8 @@ object TextMatcherService {
     }
 
 
-    fun generateInternal(generex: Generex) {
+
+    private fun generateInternal(generex: Generex) {
         initialCharacters.clear()
 
         generex.forEachMatch { match ->
@@ -55,9 +56,10 @@ object TextMatcherService {
 
 
     private fun checkInitialized() {
-        !initialized && throw RuntimeException(
+        !initialized && throw BadRequestException(
             "Text pattern has not been analyzed yet. Please invoke /generate request first.")
     }
+
 
     fun listMatchedStrings(input: String): Set<String> {
         checkInitialized()
@@ -70,7 +72,6 @@ object TextMatcherService {
             linkedCharacter.getMatchingIndexes(input, currentIndex)?.forEach {
                 matchedStrings.add(input.substring(currentIndex, it + 1))
             }
-
         }
         return matchedStrings
     }
@@ -83,6 +84,7 @@ object TextMatcherService {
         IntRange(0, input.length - 1).toList().parallelStream().forEach { idx ->
             initialCharacters[input[idx]]?.getMatchingIndexes(input, idx)?.forEach { endIdx ->
                 val match = input.substring(idx, endIdx + 1)
+
                 synchronized(matchedStrings) {
                     matchedStrings.add(match)
                 }
@@ -102,6 +104,7 @@ object TextMatcherService {
                     val matches = initialCharacters[char]?.getMatchingIndexes(input, currentIndex)
                     matches?.forEach { endIdx ->
                         val match = input.substring(currentIndex, endIdx + 1)
+
                         synchronized(matchedStrings) {
                             matchedStrings.add(match)
                         }

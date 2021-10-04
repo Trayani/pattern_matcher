@@ -1,5 +1,6 @@
 package com.example.demo
 
+import com.example.demo.api.ApiController
 import io.javalin.Javalin
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
@@ -17,7 +18,7 @@ object JavalinStarter {
         }.start(port)
 
         app.post("/generate", ApiController.generateMatchesHandler)
-        app.get("/search", ApiController.seachMatchesHandler)
+        app.get("/search", ApiController.searchMatchesHandler)
     }
 
 
@@ -25,7 +26,7 @@ object JavalinStarter {
     private fun getOpenApiOptions(): OpenApiOptions {
         val applicationInfo: Info = Info()
                 .version("1.0")
-                .description("My Application")
+                .description("Pattern matcher")
         return OpenApiOptions(applicationInfo)
                 .path("/swagger-docs")
                 .swagger(SwaggerOptions("/swagger-ui"))
